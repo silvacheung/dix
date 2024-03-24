@@ -77,19 +77,25 @@ func (tag *Tag) Unmarshal(x ...string) *Tag {
 	for _, f := range x {
 		var k, v string
 		var idx int
-		for i, c := range f {
-			if c == ':' {
+		for i := 0; i < len(f); i++ {
+			if f[i] == ':' {
 				k = f[idx:i]
 				idx = i + 1
-			}
-			if c == ';' {
-				v = f[idx:i]
-				idx = i + 1
-				tag.set(k, v)
-				k, v = "", ""
-			} else if i == len(f)-1 {
-				v = f[idx:]
-				tag.set(k, v)
+				for x := idx; x < len(f); x++ {
+					if f[x] == ';' {
+						v = f[idx:x]
+						tag.set(k, v)
+						k, v = "", ""
+						idx = x + 1
+						i = x
+						break
+					} else if x == len(f)-1 {
+						v = f[idx:]
+						tag.set(k, v)
+						i = x
+						break
+					}
+				}
 			}
 		}
 	}
